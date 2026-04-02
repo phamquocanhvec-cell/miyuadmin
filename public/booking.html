@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIYU Nail Studio — Online Buchung</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:#f5f0e8; --dark:#1a1612; --dark2:#2a2420; --dark3:#221e1a; --dark4:#1f1b17;
+  --gold:#c9a96e; --gold-light:#e8d5b0; --rose:#c4a09a; --sage:#8aa89a; --lavender:#9a8ac4;
+  --text:#8a7d74; --text2:#6a5d54; --border:rgba(201,169,110,0.2); --border2:rgba(201,169,110,0.08);
+  --card-bg:rgba(255,255,255,0.03); --green:#7ab87a; --red:#c47a7a;
+  --pink-rose:#f4e6e6; --pink-gold:#f9f0e6; --pink-light:#fdf6f6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:linear-gradient(135deg, var(--dark) 0%, var(--dark2) 100%);color:var(--cream);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;}
+
+/* HEADER */
+.booking-header{background:var(--dark3);border-bottom:1px solid var(--border);padding:20px 0;text-align:center;}
+.booking-logo{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;letter-spacing:0.15em;}
+.booking-logo span{color:var(--rose);font-style:italic;}
+.booking-subtitle{font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text);margin-top:4px;}
+
+/* CONTAINER */
+.booking-container{max-width:1200px;margin:0 auto;padding:40px 20px;}
+.booking-progress{display:flex;justify-content:space-between;margin-bottom:40px;position:relative;}
+.booking-progress::before{content:'';position:absolute;top:20px;left:0;right:0;height:2px;background:var(--border2);z-index:0;}
+.progress-step{flex:1;text-align:center;position:relative;z-index:1;}
+.progress-dot{width:40px;height:40px;border-radius:50%;background:var(--dark2);border:2px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;margin-bottom:8px;transition:all 0.3s;}
+.progress-step.active .progress-dot{background:var(--gold);border-color:var(--gold);color:var(--dark);}
+.progress-step.completed .progress-dot{background:var(--sage);border-color:var(--sage);color:var(--cream);}
+.progress-label{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text2);}
+
+/* STEPS */
+.booking-step{display:none;background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:32px;}
+.booking-step.active{display:block;}
+.step-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;margin-bottom:8px;}
+.step-subtitle{font-size:12px;color:var(--text);margin-bottom:24px;}
+
+/* SERVICE GRID */
+.service-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;margin-bottom:24px;}
+.service-card{background:var(--dark2);border:1px solid var(--border2);border-radius:8px;padding:24px;cursor:pointer;transition:all 0.3s;position:relative;}
+.service-card:hover{border-color:var(--gold);transform:translateY(-2px);}
+.service-card.selected{border-color:var(--gold);background:rgba(201,169,110,0.1);}
+.service-badge{position:absolute;top:12px;right:12px;background:var(--rose);color:var(--dark);padding:4px 8px;border-radius:12px;font-size:10px;font-weight:500;text-transform:uppercase;}
+.service-price{font-size:28px;font-family:'Cormorant Garamond',serif;color:var(--gold);margin-bottom:8px;}
+.service-original-price{font-size:18px;color:var(--text);text-decoration:line-through;margin-bottom:4px;}
+.service-discount{font-size:12px;color:var(--green);margin-bottom:8px;}
+.service-name{font-size:16px;margin-bottom:8px;}
+.service-duration{font-size:12px;color:var(--text);margin-bottom:12px;}
+.service-description{font-size:12px;color:var(--text2);line-height:1.4;}
+
+/* NAILER GRID */
+.nailer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px;}
+.nailer-card{background:var(--dark2);border:1px solid var(--border2);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:all 0.3s;}
+.nailer-card:hover{border-color:var(--gold);}
+.nailer-card.selected{border-color:var(--gold);background:rgba(201,169,110,0.1);}
+.nailer-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg, var(--gold) 0%, var(--rose) 100%);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 12px;}
+.nailer-name{font-size:14px;margin-bottom:4px;}
+.nailer-specialty{font-size:11px;color:var(--text);margin-bottom:8px;}
+.nailer-rating{font-size:12px;color:var(--gold);margin-bottom:4px;}
+.nailer-reviews{font-size:10px;color:var(--text2);}
+
+/* CALENDAR */
+.calendar-container{margin-bottom:24px;}
+.calendar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.calendar-nav{display:flex;gap:8px;}
+.calendar-btn{background:var(--dark2);border:1px solid var(--border);color:var(--cream);padding:8px 12px;border-radius:4px;cursor:pointer;transition:all 0.2s;}
+.calendar-btn:hover{border-color:var(--gold);}
+.calendar-title{font-family:'Cormorant Garamond',serif;font-size:20px;}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;}
+.calendar-day-header{background:var(--dark3);padding:12px 4px;text-align:center;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text2);}
+.calendar-day{background:var(--dark);min-height:80px;padding:8px;cursor:pointer;transition:background 0.2s;}
+.calendar-day:hover{background:rgba(255,255,255,0.02);}
+.calendar-day.other-month{opacity:0.3;}
+.calendar-day.selected{background:rgba(201,169,110,0.2);border:1px solid var(--gold);}
+.calendar-day.unavailable{opacity:0.5;cursor:not-allowed;}
+.calendar-day-number{font-size:12px;margin-bottom:4px;}
+.calendar-day-slots{font-size:10px;color:var(--text2);}
+
+/* TIME SLOTS */
+.time-slots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:12px;margin-bottom:24px;}
+.time-slot{background:var(--dark2);border:1px solid var(--border);padding:12px;text-align:center;border-radius:6px;cursor:pointer;transition:all 0.2s;}
+.time-slot:hover{border-color:var(--gold);}
+.time-slot.selected{background:var(--gold);color:var(--dark);border-color:var(--gold);}
+.time-slot.unavailable{opacity:0.3;cursor:not-allowed;}
+.time-slot-time{font-size:14px;margin-bottom:2px;}
+.time-slot-price{font-size:12px;}
+.time-slot-discount{font-size:10px;color:var(--green);}
+
+/* FORMS */
+.booking-form{display:grid;gap:20px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-group{display:flex;flex-direction:column;}
+.form-label{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.form-input{background:var(--dark2);border:1px solid var(--border);color:var(--cream);padding:12px 16px;border-radius:6px;font-size:14px;outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--gold);}
+.form-select{background:var(--dark2);border:1px solid var(--border);color:var(--cream);padding:12px 16px;border-radius:6px;font-size:14px;outline:none;cursor:pointer;}
+.form-select:focus{border-color:var(--gold);}
+.form-checkbox{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+.form-checkbox input{width:16px;height:16px;}
+.form-checkbox label{font-size:12px;color:var(--text);}
+
+/* SUMMARY */
+.booking-summary{background:var(--dark2);border:1px solid var(--border);border-radius:8px;padding:24px;}
+.summary-title{font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:16px;}
+.summary-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);}
+.summary-row:last-child{border-bottom:none;}
+.summary-label{color:var(--text);}
+.summary-value{text-align:right;}
+.summary-total{font-size:18px;font-weight:500;color:var(--gold);padding-top:8px;border-top:1px solid var(--border);}
+.summary-discounts{font-size:12px;color:var(--green);}
+
+/* BUTTONS */
+.booking-actions{display:flex;gap:12px;justify-content:space-between;margin-top:24px;}
+.btn{padding:12px 24px;border:none;border-radius:6px;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;font-weight:500;transition:all 0.2s;}
+.btn-primary{background:linear-gradient(135deg, var(--gold) 0%, var(--rose) 100%);color:var(--dark);}
+.btn-primary:hover{background:linear-gradient(135deg, var(--gold-light) 0%, var(--rose) 100%);}
+.btn-secondary{background:var(--dark2);border:1px solid var(--border);color:var(--cream);}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold);}
+.btn-full{flex:1;}
+
+/* DEALS */
+.deals-container{margin-bottom:24px;}
+.deal-card{background:linear-gradient(135deg, var(--sage) 0%, var(--green) 100%);border:1px solid var(--sage);border-radius:8px;padding:16px;margin-bottom:12px;}
+.deal-title{font-size:14px;font-weight:500;margin-bottom:4px;}
+.deal-description{font-size:12px;margin-bottom:8px;}
+.deal-discount{font-size:16px;font-weight:500;}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;font-size:14px;color:var(--text);}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin-right:8px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* RESPONSIVE */
+@media (max-width: 768px){
+  .booking-container{padding:20px 16px;}
+  .service-grid{grid-template-columns:1fr;}
+  .nailer-grid{grid-template-columns:1fr 1fr;}
+  .time-slots-grid{grid-template-columns:repeat(3,1fr);}
+  .form-row{grid-template-columns:1fr;}
+  .booking-progress{flex-direction:column;gap:12px;}
+  .booking-progress::before{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="booking-header">
+  <div class="booking-logo">MIYU <span>Nail Studio</span></div>
+  <div class="booking-subtitle">Online Buchung — 24/7 verfügbar</div>
+</header>
+
+<!-- CONTAINER -->
+<div class="booking-container">
+  
+  <!-- PROGRESS BAR -->
+  <div class="booking-progress">
+    <div class="progress-step active" data-step="1">
+      <div class="progress-dot">1</div>
+      <div class="progress-label">Service</div>
+    </div>
+    <div class="progress-step" data-step="2">
+      <div class="progress-dot">2</div>
+      <div class="progress-label">Nagler</div>
+    </div>
+    <div class="progress-step" data-step="3">
+      <div class="progress-dot">3</div>
+      <div class="progress-label">Datum</div>
+    </div>
+    <div class="progress-step" data-step="4">
+      <div class="progress-dot">4</div>
+      <div class="progress-label">Uhrzeit</div>
+    </div>
+    <div class="progress-step" data-step="5">
+      <div class="progress-dot">5</div>
+      <div class="progress-label">Details</div>
+    </div>
+    <div class="progress-step" data-step="6">
+      <div class="progress-dot">6</div>
+      <div class="progress-label">Bestätigung</div>
+    </div>
+  </div>
+
+  <!-- STEP 1: SELECT SERVICE -->
+  <div class="booking-step active" id="step1">
+    <h2 class="step-title">Wählen Sie Ihren Service</h2>
+    <p class="step-subtitle">Entdecken Sie unsere Behandlungen und Special Offers</p>
+    
+    <div class="deals-container" id="dealsContainer">
+      <!-- Deals will be loaded here -->
+    </div>
+    
+    <div class="service-grid" id="serviceGrid">
+      <div class="loading">
+        <div class="spinner"></div>
+        Lade Services...
+      </div>
+    </div>
+    
+    <div class="booking-actions">
+      <button class="btn btn-secondary" onclick="goBack()" style="display:none;">Zurück</button>
+      <button class="btn btn-primary btn-full" onclick="nextStep()" id="step1Next" disabled>Weiter →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: SELECT NAILER -->
+  <div class="booking-step" id="step2">
+    <h2 class="step-title">Wählen Sie Ihre Naglerin</h2>
+    <p class="step-subtitle">Unsere erfahrenen Nageldesigner</p>
+    
+    <div class="nailer-grid" id="nailerGrid">
+      <div class="loading">
+        <div class="spinner"></div>
+        Lade Nagler...
+      </div>
+    </div>
+    
+    <div class="booking-actions">
+      <button class="btn btn-secondary" onclick="goBack()">← Zurück</button>
+      <button class="btn btn-primary btn-full" onclick="nextStep()" id="step2Next" disabled>Weiter →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: SELECT DATE -->
+  <div class="booking-step" id="step3">
+    <h2 class="step-title">Wählen Sie ein Datum</h2>
+    <p class="step-subtitle">Verfügbare Termine für Ihren gewählten Service</p>
+    
+    <div class="calendar-container">
+      <div class="calendar-header">
+        <div class="calendar-nav">
+          <button class="calendar-btn" onclick="changeMonth(-1)">←</button>
+        </div>
+        <div class="calendar-title" id="calendarTitle">November 2024</div>
+        <div class="calendar-nav">
+          <button class="calendar-btn" onclick="changeMonth(1)">→</button>
+        </div>
+      </div>
+      <div class="calendar-grid" id="calendarGrid">
+        <!-- Calendar will be generated here -->
+      </div>
+    </div>
+    
+    <div class="booking-actions">
+      <button class="btn btn-secondary" onclick="goBack()">← Zurück</button>
+      <button class="btn btn-primary btn-full" onclick="nextStep()" id="step3Next" disabled>Weiter →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: SELECT TIME -->
+  <div class="booking-step" id="step4">
+    <h2 class="step-title">Wählen Sie eine Uhrzeit</h2>
+    <p class="step-subtitle">Verfügbare Zeiten für <span id="selectedDateDisplay"></span></p>
+    
+    <div class="time-slots-grid" id="timeSlotsGrid">
+      <div class="loading">
+        <div class="spinner"></div>
+        Lade Zeiten...
+      </div>
+    </div>
+    
+    <div class="booking-actions">
+      <button class="btn btn-secondary" onclick="goBack()">← Zurück</button>
+      <button class="btn btn-primary btn-full" onclick="nextStep()" id="step4Next" disabled>Weiter →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: CUSTOMER DETAILS -->
+  <div class="booking-step" id="step5">
+    <h2 class="step-title">Ihre Kontaktdaten</h2>
+    <p class="step-subtitle">Bitte geben Sie Ihre Informationen ein</p>
+    
+    <form class="booking-form" id="customerForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Vorname *</label>
+          <input type="text" class="form-input" name="firstName" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nachname *</label>
+          <input type="text" class="form-input" name="lastName" required>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">E-Mail *</label>
+        <input type="email" class="form-input" name="email" required>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Telefon *</label>
+        <input type="tel" class="form-input" name="phone" required>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Geburtstag (Optional)</label>
+        <input type="date" class="form-input" name="birthday">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Anmerkungen (Optional)</label>
+        <textarea class="form-input" name="notes" rows="3" placeholder="Besondere Wünsche oder Allergien..."></textarea>
+      </div>
+      
+      <div class="form-checkbox">
+        <input type="checkbox" id="emailConsent" name="emailConsent" checked>
+        <label for="emailConsent">Ich möchte E-Mails mit Special Offers und Updates erhalten</label>
+      </div>
+      
+      <div class="form-checkbox">
+        <input type="checkbox" id="smsConsent" name="smsConsent" checked>
+        <label for="smsConsent">Ich möchte SMS-Erinnerungen für meine Termine erhalten</label>
+      </div>
+    </form>
+    
+    <div class="booking-actions">
+      <button class="btn btn-secondary" onclick="goBack()">← Zurück</button>
+      <button class="btn btn-primary btn-full" onclick="nextStep()">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- STEP 6: CONFIRMATION -->
+  <div class="booking-step" id="step6">
+    <h2 class="step-title">Bestätigen Sie Ihre Buchung</h2>
+    <p class="step-subtitle">Überprüfen Sie alle Details vor der Bestätigung</p>
+    
+    <div class="booking-summary" id="bookingSummary">
+      <!-- Summary will be generated here -->
+    </div>
+    
+    <div class="booking-actions">
+      <button class="btn btn-secondary" onclick="goBack()">← Zurück</button>
+      <button class="btn btn-primary btn-full" onclick="confirmBooking()">Buchung bestätigen</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── GLOBAL STATE ────────────────────────────────────────────────────────────────
+let currentStep = 1;
+let bookingData = {
+  service: null,
+  nailer: null,
+  date: null,
+  time: null,
+  customer: {},
+  pricing: {}
+};
+
+// ─── INITIALIZATION ─────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadServices();
+  loadDeals();
+});
+
+// ─── STEP NAVIGATION ──────────────────────────────────────────────────────────────
+function nextStep() {
+  if (currentStep === 1 && !bookingData.service) return;
+  if (currentStep === 2 && !bookingData.nailer) return;
+  if (currentStep === 3 && !bookingData.date) return;
+  if (currentStep === 4 && !bookingData.time) return;
+  if (currentStep === 5) {
+    if (!validateCustomerForm()) return;
+    generateSummary();
+  }
+  
+  if (currentStep < 6) {
+    showStep(currentStep + 1);
+  }
+}
+
+function goBack() {
+  if (currentStep > 1) {
+    showStep(currentStep - 1);
+  }
+}
+
+function showStep(step) {
+  // Update progress
+  document.querySelectorAll('.progress-step').forEach((el, index) => {
+    el.classList.remove('active', 'completed');
+    if (index + 1 < step) el.classList.add('completed');
+    if (index + 1 === step) el.classList.add('active');
+  });
+  
+  // Show/hide steps
+  document.querySelectorAll('.booking-step').forEach(el => {
+    el.classList.remove('active');
+  });
+  document.getElementById(`step${step}`).classList.add('active');
+  
+  currentStep = step;
+  
+  // Load data for specific steps
+  if (step === 2) loadNailers();
+  if (step === 3) renderCalendar();
+  if (step === 4) loadTimeSlots();
+}
+
+// ─── STEP 1: SERVICES ───────────────────────────────────────────────────────────
+async function loadServices() {
+  try {
+    const response = await fetch('/api/services');
+    const services = await response.json();
+    
+    const grid = document.getElementById('serviceGrid');
+    grid.innerHTML = services.map(service => `
+      <div class="service-card" onclick="selectService(${service.id})" data-service='${JSON.stringify(service)}'>
+        ${service.isPopular ? '<div class="service-badge">Beliebt</div>' : ''}
+        <div class="service-name">${service.name}</div>
+        <div class="service-description">${service.description || ''}</div>
+        <div class="service-duration">${service.duration} Min</div>
+        <div class="service-price">€${service.price}</div>
+      </div>
+    `).join('');
+    
+  } catch (error) {
+    console.error('Error loading services:', error);
+    document.getElementById('serviceGrid').innerHTML = '<div class="loading">Fehler beim Laden der Services</div>';
+  }
+}
+
+async function loadDeals() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const now = new Date().toTimeString().slice(0, 5);
+    
+    const response = await fetch(`/api/pricing/deals/${today}/${now}`);
+    const data = await response.json();
+    
+    if (data.deals.length > 0) {
+      const container = document.getElementById('dealsContainer');
+      container.innerHTML = `
+        <h3 style="font-size: 16px; margin-bottom: 12px;">🎉 Special Offers für heute</h3>
+        ${data.deals.map(deal => `
+          <div class="deal-card">
+            <div class="deal-title">${deal.title}</div>
+            <div class="deal-description">${deal.description}</div>
+            <div class="deal-discount">${Math.round(deal.discount * 100)}% Rabatt</div>
+          </div>
+        `).join('')}
+      `;
+    }
+  } catch (error) {
+    console.error('Error loading deals:', error);
+  }
+}
+
+function selectService(serviceId) {
+  // Remove previous selection
+  document.querySelectorAll('.service-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  
+  // Add selection
+  const card = document.querySelector(`[data-service*='"id":${serviceId}']`);
+  if (card) {
+    card.classList.add('selected');
+    bookingData.service = JSON.parse(card.dataset.service);
+    document.getElementById('step1Next').disabled = false;
+  }
+}
+
+// ─── STEP 2: NAILERS ─────────────────────────────────────────────────────────────
+async function loadNailers() {
+  try {
+    const response = await fetch('/api/nailers');
+    const nailers = await response.json();
+    
+    const grid = document.getElementById('nailerGrid');
+    grid.innerHTML = nailers.map(nailer => `
+      <div class="nailer-card" onclick="selectNailer(${nailer.id})" data-nailer='${JSON.stringify(nailer)}'>
+        <div class="nailer-avatar">${nailer.firstName[0]}</div>
+        <div class="nailer-name">${nailer.firstName}</div>
+        <div class="nailer-specialty">${nailer.specialty || 'Nail Artist'}</div>
+        <div class="nailer-rating">⭐ ${nailer.averageRating || '5.0'}</div>
+        <div class="nailer-reviews">${nailer.totalReviews || 0} Bewertungen</div>
+      </div>
+    `).join('');
+    
+  } catch (error) {
+    console.error('Error loading nailers:', error);
+    document.getElementById('nailerGrid').innerHTML = '<div class="loading">Fehler beim Laden der Nagler</div>';
+  }
+}
+
+function selectNailer(nailerId) {
+  document.querySelectorAll('.nailer-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  
+  const card = document.querySelector(`[data-nailer*='"id":${nailerId}']`);
+  if (card) {
+    card.classList.add('selected');
+    bookingData.nailer = JSON.parse(card.dataset.nailer);
+    document.getElementById('step2Next').disabled = false;
+  }
+}
+
+// ─── STEP 3: CALENDAR ───────────────────────────────────────────────────────────
+let currentMonth = new Date();
+
+function renderCalendar() {
+  const year = currentMonth.getFullYear();
+  const month = currentMonth.getMonth();
+  
+  // Update title
+  const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+  document.getElementById('calendarTitle').textContent = `${monthNames[month]} ${year}`;
+  
+  // Generate calendar grid
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today = new Date();
+  
+  let html = '';
+  
+  // Day headers
+  const dayHeaders = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+  dayHeaders.forEach(day => {
+    html += `<div class="calendar-day-header">${day}</div>`;
+  });
+  
+  // Empty cells for first week
+  for (let i = 0; i < firstDay; i++) {
+    html += '<div class="calendar-day other-month"></div>';
+  }
+  
+  // Days of month
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(year, month, day);
+    const dateStr = date.toISOString().split('T')[0];
+    const isPast = date < today && dateStr !== today.toISOString().split('T')[0];
+    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+    
+    html += `
+      <div class="calendar-day ${isPast ? 'unavailable' : ''} ${isWeekend ? 'weekend' : ''}" 
+           onclick="selectDate('${dateStr}')" data-date="${dateStr}">
+        <div class="calendar-day-number">${day}</div>
+        <div class="calendar-day-slots">Verfügbar</div>
+      </div>
+    `;
+  }
+  
+  document.getElementById('calendarGrid').innerHTML = html;
+}
+
+function changeMonth(direction) {
+  currentMonth.setMonth(currentMonth.getMonth() + direction);
+  renderCalendar();
+}
+
+function selectDate(dateStr) {
+  const date = new Date(dateStr);
+  const today = new Date();
+  
+  if (date < today && dateStr !== today.toISOString().split('T')[0]) {
+    return; // Can't select past dates
+  }
+  
+  // Remove previous selection
+  document.querySelectorAll('.calendar-day').forEach(day => {
+    day.classList.remove('selected');
+  });
+  
+  // Add selection
+  const dayElement = document.querySelector(`[data-date="${dateStr}"]`);
+  if (dayElement) {
+    dayElement.classList.add('selected');
+    bookingData.date = dateStr;
+    document.getElementById('step3Next').disabled = false;
+  }
+}
+
+// ─── STEP 4: TIME SLOTS ─────────────────────────────────────────────────────────
+async function loadTimeSlots() {
+  if (!bookingData.date) return;
+  
+  try {
+    const response = await fetch(`/api/slots/${bookingData.service.id}/${bookingData.nailer.id}/${bookingData.date}`);
+    const slots = await response.json();
+    
+    const grid = document.getElementById('timeSlotsGrid');
+    grid.innerHTML = slots.map(slot => `
+      <div class="time-slot ${slot.available ? '' : 'unavailable'}" 
+           onclick="selectTime('${slot.time}', ${slot.price}, ${slot.originalPrice || slot.price})"
+           data-time="${slot.time}" data-price="${slot.price}">
+        <div class="time-slot-time">${slot.time}</div>
+        <div class="time-slot-price">€${slot.price}</div>
+        ${slot.originalPrice && slot.originalPrice > slot.price ? 
+          `<div class="time-slot-discount">-${Math.round((1 - slot.price/slot.originalPrice) * 100)}%</div>` : ''}
+      </div>
+    `).join('');
+    
+    document.getElementById('selectedDateDisplay').textContent = formatDate(bookingData.date);
+    
+  } catch (error) {
+    console.error('Error loading time slots:', error);
+    document.getElementById('timeSlotsGrid').innerHTML = '<div class="loading">Fehler beim Laden der Zeiten</div>';
+  }
+}
+
+function selectTime(time, price, originalPrice) {
+  document.querySelectorAll('.time-slot').forEach(slot => {
+    slot.classList.remove('selected');
+  });
+  
+  const slotElement = document.querySelector(`[data-time="${time}"]`);
+  if (slotElement && !slotElement.classList.contains('unavailable')) {
+    slotElement.classList.add('selected');
+    bookingData.time = time;
+    bookingData.pricing = { price, originalPrice };
+    document.getElementById('step4Next').disabled = false;
+  }
+}
+
+// ─── STEP 5: CUSTOMER FORM ───────────────────────────────────────────────────────
+function validateCustomerForm() {
+  const form = document.getElementById('customerForm');
+  const formData = new FormData(form);
+  
+  bookingData.customer = {
+    firstName: formData.get('firstName'),
+    lastName: formData.get('lastName'),
+    email: formData.get('email'),
+    phone: formData.get('phone'),
+    birthday: formData.get('birthday'),
+    notes: formData.get('notes'),
+    emailConsent: formData.get('emailConsent') === 'on',
+    smsConsent: formData.get('smsConsent') === 'on'
+  };
+  
+  // Basic validation
+  return bookingData.customer.firstName && 
+         bookingData.customer.lastName && 
+         bookingData.customer.email && 
+         bookingData.customer.phone;
+}
+
+// ─── STEP 6: SUMMARY ───────────────────────────────────────────────────────────
+function generateSummary() {
+  const summary = document.getElementById('bookingSummary');
+  const savings = bookingData.pricing.originalPrice - bookingData.pricing.price;
+  
+  summary.innerHTML = `
+    <div class="summary-title">Buchungsübersicht</div>
+    
+    <div class="summary-row">
+      <div class="summary-label">Service</div>
+      <div class="summary-value">${bookingData.service.name}</div>
+    </div>
+    
+    <div class="summary-row">
+      <div class="summary-label">Naglerin</div>
+      <div class="summary-value">${bookingData.nailer.firstName}</div>
+    </div>
+    
+    <div class="summary-row">
+      <div class="summary-label">Datum</div>
+      <div class="summary-value">${formatDate(bookingData.date)}</div>
+    </div>
+    
+    <div class="summary-row">
+      <div class="summary-label">Uhrzeit</div>
+      <div class="summary-value">${bookingData.time}</div>
+    </div>
+    
+    <div class="summary-row">
+      <div class="summary-label">Dauer</div>
+      <div class="summary-value">${bookingData.service.duration} Minuten</div>
+    </div>
+    
+    <div class="summary-row">
+      <div class="summary-label">Kunde</div>
+      <div class="summary-value">${bookingData.customer.firstName} ${bookingData.customer.lastName}</div>
+    </div>
+    
+    ${savings > 0 ? `
+      <div class="summary-row summary-discounts">
+        <div class="summary-label">Ersparnis</div>
+        <div class="summary-value">-€${savings.toFixed(2)}</div>
+      </div>
+    ` : ''}
+    
+    <div class="summary-row summary-total">
+      <div class="summary-label">Gesamtpreis</div>
+      <div class="summary-value">€${bookingData.pricing.price}</div>
+    </div>
+  `;
+}
+
+// ─── CONFIRMATION ───────────────────────────────────────────────────────────────
+async function confirmBooking() {
+  try {
+    const bookingPayload = {
+      serviceId: bookingData.service.id,
+      nailerId: bookingData.nailer.id,
+      date: bookingData.date,
+      time: bookingData.time,
+      customer: bookingData.customer,
+      originalPrice: bookingData.pricing.originalPrice,
+      finalPrice: bookingData.pricing.price
+    };
+    
+    const response = await fetch('/api/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bookingPayload)
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      showSuccessMessage(result);
+    } else {
+      const error = await response.json();
+      showErrorMessage(error.message || 'Buchung fehlgeschlagen');
+    }
+    
+  } catch (error) {
+    console.error('Booking error:', error);
+    showErrorMessage('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+  }
+}
+
+function showSuccessMessage(booking) {
+  // Hide all steps and show success
+  document.querySelectorAll('.booking-step').forEach(step => {
+    step.classList.remove('active');
+  });
+  
+  const container = document.querySelector('.booking-container');
+  container.innerHTML = `
+    <div style="text-align:center; padding: 60px 20px;">
+      <div style="font-size: 64px; margin-bottom: 20px;">✨</div>
+      <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 32px; margin-bottom: 16px;">
+        Buchung bestätigt!
+      </h1>
+      <p style="font-size: 16px; color: var(--text); margin-bottom: 32px;">
+        Vielen Dank für Ihre Buchung bei MIYU Nail Studio.
+      </p>
+      
+      <div style="background: var(--dark2); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 32px; text-align: left;">
+        <div style="font-size: 14px; margin-bottom: 8px;"><strong>Buchungsnummer:</strong> #${booking.id}</div>
+        <div style="font-size: 14px; margin-bottom: 8px;"><strong>Service:</strong> ${bookingData.service.name}</div>
+        <div style="font-size: 14px; margin-bottom: 8px;"><strong>Datum:</strong> ${formatDate(bookingData.date)}</div>
+        <div style="font-size: 14px; margin-bottom: 8px;"><strong>Uhrzeit:</strong> ${bookingData.time}</div>
+        <div style="font-size: 14px; margin-bottom: 8px;"><strong>Naglerin:</strong> ${bookingData.nailer.firstName}</div>
+        <div style="font-size: 14px;"><strong>Preis:</strong> €${bookingData.pricing.price}</div>
+      </div>
+      
+      <p style="font-size: 14px; color: var(--text2); margin-bottom: 24px;">
+        Eine Bestätigungs-E-Mail wurde an ${bookingData.customer.email} gesendet.
+      </p>
+      
+      <button class="btn btn-primary" onclick="window.location.reload()">
+        Neue Buchung
+      </button>
+    </div>
+  `;
+}
+
+function showErrorMessage(message) {
+  // Create error toast
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position: fixed; top: 20px; right: 20px; 
+    background: var(--red); color: white; 
+    padding: 16px 20px; border-radius: 4px; 
+    z-index: 1000; max-width: 300px;
+  `;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => toast.remove(), 5000);
+}
+
+// ─── UTILITIES ───────────────────────────────────────────────────────────────
+function formatDate(dateStr) {
+  const date = new Date(dateStr);
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  return date.toLocaleDateString('de-DE', options);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+services:
+  # MIYU Nail Studio CRM Web Service
+  - type: web
+    name: miyu-crm
+    runtime: node
+    plan: free
+    env: node
+    region: frankfurt
+    buildCommand: npm install && npm run build
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    
+    # Environment variables (set these in Render dashboard)
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: GMAIL_USER
+        sync: false # Set in Render dashboard
+      - key: GMAIL_PASS
+        sync: false # Set in Render dashboard
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALLOWED_ORIGIN
+        value: https://miyu-crm.onrender.com
+
+    # Auto-deploy from main branch
+    autoDeploy: true
+    
+    # Build configuration
+    buildFilter:
+      paths:
+        - src/**
+        - public/**
+        - routes/**
+        - migrations/**
+        - package.json
+        - server.js
+        - init-db.js
+        - seed-data.js
+
+  # Database (SQLite will be created in /opt/render/project/src)
+  # No separate database service needed for SQLite
