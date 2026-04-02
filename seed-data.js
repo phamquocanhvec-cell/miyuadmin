@@ -1,40 +1,42 @@
 // seed-data.js — Populate database with initial data for MIYU Nail Studio
-const Database = require('better-sqlite3');
 
-const dbPath = process.env.NODE_ENV === 'production' ? '/opt/render/project/src/miyu.db' : './miyu.db';
-const db = new Database(dbPath);
+try {
+  // Wrap all operations in try-catch
+  const Database = require('better-sqlite3');
+  const dbPath = process.env.NODE_ENV === 'production' ? '/opt/render/project/src/miyu.db' : './miyu.db';
+  const db = new Database(dbPath);
 
-console.log('Seeding database with initial data...');
+  console.log('Seeding database with initial data...');
 
-// ─── NAILERS ─────────────────────────────────────────────────────────────────────
-const nailers = [
-  {
-    firstName: 'Anna',
-    lastName: 'Schmidt',
-    email: 'anna@miyu.de',
-    phone: '+49 211 1234567',
-    specialty: 'Gel Nails & Nail Art',
-    bio: 'Über 10 Jahre Erfahrung in Nail Design und spezialisiert auf kreative Nail Art.'
-  },
-  {
-    firstName: 'Maria',
-    lastName: 'Weber',
-    email: 'maria@miyu.de',
-    phone: '+49 211 1234568',
-    specialty: 'Manicure & Pedicure',
-    bio: 'Expertin für klassische Manicure und medizinische Pedicure.'
-  },
-  {
-    firstName: 'Lisa',
-    lastName: 'Müller',
-    email: 'lisa@miyu.de',
-    phone: '+49 211 1234569',
-    specialty: 'Acrylic Nails & Extensions',
-    bio: 'Spezialisiert auf Acrylic Techniken und Nail Extensions.'
-  }
-];
+  // ─── NAILERS ─────────────────────────────────────────────────────────────────────
+  const nailers = [
+    {
+      firstName: 'Anna',
+      lastName: 'Schmidt',
+      email: 'anna@miyu.de',
+      phone: '+49 211 1234567',
+      specialty: 'Gel Nails & Nail Art',
+      bio: 'Über 10 Jahre Erfahrung in Nail Design und spezialisiert auf kreative Nail Art.'
+    },
+    {
+      firstName: 'Maria',
+      lastName: 'Weber',
+      email: 'maria@miyu.de',
+      phone: '+49 211 1234568',
+      specialty: 'Manicure & Pedicure',
+      bio: 'Expertin für klassische Manicure und medizinische Pedicure.'
+    },
+    {
+      firstName: 'Lisa',
+      lastName: 'Müller',
+      email: 'lisa@miyu.de',
+      phone: '+49 211 1234569',
+      specialty: 'Acrylic Nails & Extensions',
+      bio: 'Spezialisiert auf Acrylic Techniken und Nail Extensions.'
+    }
+  ];
 
-const insertNailer = db.prepare(`
+  const insertNailer = db.prepare(`
   INSERT OR IGNORE INTO nailers (firstName, lastName, email, phone, specialty, bio)
   VALUES (?, ?, ?, ?, ?, ?)
 `);
@@ -117,7 +119,14 @@ const insertService = db.prepare(`
 `);
 
 services.forEach(service => {
-  insertService.run(service.name, service.description, service.duration, service.price, service.category, service.isPopular);
+  insertService.run(
+    service.name, 
+    service.description, 
+    service.duration, 
+    service.price, 
+    service.category, 
+    service.isPopular ? 1 : 0  // Convert boolean to integer
+  );
 });
 
 // ─── SAMPLE CUSTOMERS ─────────────────────────────────────────────────────────────
@@ -272,7 +281,7 @@ const insertTimeSlot = db.prepare(`
 
 const timeSlots = generateTimeSlots();
 timeSlots.forEach(slot => {
-  insertTimeSlot.run(slot.nailerId, slot.date, slot.time, slot.isAvailable);
+  insertTimeSlot.run(slot.nailerId, slot.date, slot.time, slot.isAvailable ? 1 : 0);
 });
 
 // ─── SAMPLE REVIEWS ─────────────────────────────────────────────────────────────
@@ -380,3 +389,9 @@ console.log(`- ${rewards.length} reward accounts created`);
 console.log(`- ${giftCards.length} gift cards created`);
 
 db.close();
+
+} catch (error) {
+  console.error('❌ Error seeding database:', error.message);
+  console.error('Stack:', error.stack);
+  process.exit(1);
+}

@@ -10,13 +10,24 @@ const dbPath = process.env.NODE_ENV === 'production' ? '/opt/render/project/src/
 const db = new Database(dbPath);
 
 // ─── EMAIL CONFIGURATION ───────────────────────────────────────────────────────────
-const transporter = nodemailer.createTransporter({
-  service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS
+let transporter;
+try {
+  if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
+    transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS
+      }
+    });
+    console.log('✅ Email transporter configured');
+  } else {
+    console.log('⚠️ Gmail credentials not found - email features disabled');
   }
-});
+} catch (error) {
+  console.error('❌ Error configuring email transporter:', error.message);
+  transporter = null;
+}
 
 // ─── CUSTOMER TIER CALCULATION ───────────────────────────────────────────────────────
 function calculateCustomerTier(customer) {
@@ -144,6 +155,11 @@ async function sendBirthdayEmail(customer) {
       </div>
     `
   };
+  
+  if (!transporter) {
+    console.log('Email transporter not available - skipping email send');
+    return;
+  }
   
   await transporter.sendMail(mailOptions);
 }
